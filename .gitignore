@@ -107,3 +107,7 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# For developement
+/logfile.log
+/main.py
