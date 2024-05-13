@@ -6,13 +6,28 @@ pyturk is a primitive client that I wrote at work to facilitate working with Qua
 
 ## Getting Started
 
-1. Clone this repo...
-2. You can install pyturk locally in your working environment using pip:
+1. You can install pyturk locally in your working environment using pip:
 
+   > pip install 'git+ssh://git@github.com/sebfest/pyturk.git'
+
+   Or by first cloning this repository and then running pip 
+
+   > git clone git@github.com:sebfest/pyturk.git
+   > 
+   > cd pyturk
+   > 
    > pip install .
+
 
 3. Load the client:
 
+   > from pyturk.managers import HitManager
+   > 
+   > hitmanager = HitManager(sandbox=False)
+   > 
+   > hit = hitmanager.download_hit()
+       
+   
 ## Contributing Members
 
 **Team Leads (Contacts) : [Sebastian Fest](https://github.com/sebfest)**
