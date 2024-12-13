@@ -21,10 +21,16 @@ pyturk is a primitive client that I wrote at work to facilitate working with Qua
 
 3. Load the client:
    ```pycon
-   from pyturk.managers import HitManager
+   from pyturk.managers import HitManager, QualificationManager
    
    hitmanager = HitManager(sandbox=False)
-   hit = hitmanager.download_hit() 
+   hit = hitmanager.download_hit()
+   
+   qualification_manager = QualificationManager(sandbox=False)
+   qualification = qualification_manager.get_qualification()
+    
+   hit.add_qualification_to_hit(qualification)
+   hit.assign_qualification_to_workers()
    ```
 ## Contributing Members
 
