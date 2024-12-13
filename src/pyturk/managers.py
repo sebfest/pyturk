@@ -27,7 +27,7 @@ class BaseManager:
         while True:
             user_input = input('Type inn your selection (q to quit): ')
             if 'q' in user_input.lower():
-                raise InputError('User defined exit.')
+                raise SystemExit
             else:
                 try:
                     choice = choice_list[int(user_input)]
