@@ -1,10 +1,9 @@
 import logging
 import re
-
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Callable
 
 from .client import MTurkClient
 from .exceptions import InsufficientFundingError
@@ -22,27 +21,37 @@ class Qualification:
     )
 
     name: str
-    description: Optional[str] = _DESCRIPTION
-    identifier: Optional[str] = ''
-    status: Optional[str] = 'Active'
+    description: str | None = _DESCRIPTION
+    identifier: str | None = ''
+    status: str = 'Active'
 
 
-@dataclass
 class Assignment:
-    assignment_id: str
-    worker_id: str
-    bonus: str
-    reason: Optional[str] = None
-    approve: Optional[int] = None
-    assignment_status: Optional[str] = None
-    answer: Optional[List] = None
+    """A basic assignment class"""
 
-    def __post_init__(self):
+    def __init__(
+            self,
+            assignment_id: str,
+            worker_id: str,
+            bonus: str,
+            reason: str | None = None,
+            approve: int | None = None,
+            assignment_status: str | None = None,
+            answer: List | None = None,
+    ):
+
+        self.assignment_id = assignment_id
+        self.worker_id = worker_id
+        self.bonus = bonus
+        self.reason = reason
+        self.approve = approve
+        self.assignment_status = assignment_status
+        self.answer = answer
         self.unique_token = f'{self.worker_id}_{self.assignment_id}'
-        
+
         if self.approve and not isinstance(self.approve, int):
             try:
-                self.approve = int(self.approve)
+                self.approve = int(approve)
             except TypeError as e:
                 logger.error(e)
                 raise
@@ -61,7 +70,10 @@ class Assignment:
 
     def process(self, connection) -> None:
         """Approve or reject assignment."""
-        if self.approve is None:
+        func: Callable | None = None
+        message: str = ''
+
+        if not self.approve:
             logger.info("No status set")
         elif self.approve:
             func = connection.approve_assignment
@@ -71,7 +83,7 @@ class Assignment:
             message = "You have submitted the assignment but not worked on it."
         else:
             logger.info("No valid value")
-            
+
         try:
             func(
                 AssignmentId=self.assignment_id,
@@ -243,4 +255,15 @@ class Hit:
                 assignment.pay_bonus(connection)
             logger.info("Bonus payment finished")
 
-
+    def extend_hit(self, additional: int) -> None:
+        """Create additional assignments for your HIT."""
+        with self._client as connection:
+            try:
+                connection.create_additional_assignments_for_hit(
+                    HITId=self.hit_id,
+                    NumberOfAdditionalAssignments=int(additional),
+                )
+            except Exception as error:
+                logging.error("%s", error)
+            else:
+                logger.info(f'{additional} additional assignments created.')
